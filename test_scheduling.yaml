@@ -1,0 +1,39 @@
+#####################################################################################
+# YAML FILE DEFINING ORDERING OF THE TEST SUITES TO BE FED INTO THE TEST SCHEDULER #
+#####################################################################################
+
+#   1) waitcurrent: If a task fails, wait for all the running tasks to finish, but don't schedule new tasks.
+#   2) failfast: Immediately exit when a task fails.
+#   3) waitall: Schedules all tasks, ignoring failures. At the end will exit with error code if any tasks failed.
+#   4) runalways : Execute all tasks in a group regardless of any failues from other groups
+#
+
+## YAML Level mode, modes define in group override this mode
+mode: waitall
+termWaitTimeInMins: 10
+
+groups:
+    - Group: Sanity-Tests
+      Strategy: sequential
+      Mode: waitall
+tasks:
+    ###
+    # Pattern to add new test suite
+    # Command: python run_tests.py --test-folder-path tests/<suite_name>
+    # Name: <Test suite name>
+    # Group: <Group to which test suite belongs>
+    # TimeoutInMinutes: <Timeout for the test suite>
+    # RunCommandOnTimeout: python timeout_handler.py --test-folder-path tests/<suite_name>
+    ##
+
+    - Command: python run_tests.py --test-folder-path tests/one
+      Name: Test One
+      Group: Sanity-Tests
+      TimeoutInMinutes: 1
+      RunCommandOnTimeout: python timeout_handler.py --test-folder-path tests/sanity
+    
+    - Command: python run_tests.py --test-folder-path tests/two
+      Name: Test Two
+      Group: Sanity-Tests
+      TimeoutInMinutes: 15
+      RunCommandOnTimeout: python timeout_handler.py --test-folder-path tests/sanity
