@@ -1,5 +1,4 @@
 import pandas as pd
-import pyodbc
 import yaml
 
 def test_two():

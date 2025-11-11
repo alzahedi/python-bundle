@@ -6,4 +6,5 @@ __pycache__/
 .validate_log/
 modified_test_scheduling.yaml
 windows/
+linux/
 *.whl

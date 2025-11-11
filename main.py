@@ -14,6 +14,11 @@ def modify_test_yaml_file(yaml_path):
     
     if platform.system() == 'Windows':
         bundled_python_path = os.path.join(os.path.dirname(__file__), 'windows', 'python3', 'python.exe')
+    elif platform.system() == 'Linux':
+        bundled_python_path = os.path.join(os.path.dirname(__file__), 'linux', 'python3', 'bin', 'python3')
+    else:
+        # Fallback for macOS or other systems
+        bundled_python_path = 'python'
 
     # Modify all Command entries to use .exe instead of python
     for task in config.get('tasks', []):
