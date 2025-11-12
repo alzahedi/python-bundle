@@ -64,12 +64,51 @@ ln -sf "$PYTHON_DIR/bin/pip3" "$PYTHON_DIR/bin/pip"
 #     "$PYTHON_DIR/bin/pip" install "$CURRENT_DIR/scheduler-0.1.2-py3-none-any.whl"
 # fi
 
-# Step 10: Create activation script
+# Step 10: Create activation script with deactivate support
 cat > "$BUNDLE_ROOT/activate.sh" << 'EOF'
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Save original environment if not already saved
+if [ -z "$_PYTHON_BUNDLE_ACTIVE" ]; then
+    export _ORIGINAL_PATH="$PATH"
+    export _ORIGINAL_LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+    export _PYTHON_BUNDLE_ACTIVE="1"
+    export _PYTHON_BUNDLE_BIN="$SCRIPT_DIR/python3/bin"
+fi
+
+# Activate
 export PATH="$SCRIPT_DIR/python3/bin:$PATH"
 export LD_LIBRARY_PATH="$SCRIPT_DIR/python3/lib:$LD_LIBRARY_PATH"
+
+# Create deactivate function
+deactivate() {
+    if [ -n "$_PYTHON_BUNDLE_ACTIVE" ]; then
+        # Remove the bundle path from PATH
+        export PATH="${PATH//$_PYTHON_BUNDLE_BIN:/}"
+        export PATH="${PATH//$_PYTHON_BUNDLE_BIN/}"
+        
+        # Restore original LD_LIBRARY_PATH
+        if [ -n "$_ORIGINAL_LD_LIBRARY_PATH" ]; then
+            export LD_LIBRARY_PATH="$_ORIGINAL_LD_LIBRARY_PATH"
+        else
+            unset LD_LIBRARY_PATH
+        fi
+        
+        # Clean up
+        unset _PYTHON_BUNDLE_ACTIVE
+        unset _PYTHON_BUNDLE_BIN
+        unset _ORIGINAL_PATH
+        unset _ORIGINAL_LD_LIBRARY_PATH
+        unset -f deactivate
+        
+        echo "Python bundle deactivated"
+    else
+        echo "Python bundle is not active"
+    fi
+}
+
+echo "Python bundle activated. Use 'deactivate' to restore environment."
 EOF
 
 chmod +x "$BUNDLE_ROOT/activate.sh"

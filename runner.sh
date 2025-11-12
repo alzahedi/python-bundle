@@ -47,5 +47,8 @@ echo ""
 # Run main.py with the config file
 "$PYTHON_EXE" "$MAIN_SCRIPT" --config "$CONFIG"
 
+# Deactivate the environment after script execution
+deactivate
+
 # Exit with the same exit code as the Python script
 exit $?
