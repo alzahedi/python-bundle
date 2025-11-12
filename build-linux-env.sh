@@ -9,12 +9,24 @@ PYTHON_DIR="$BUNDLE_ROOT/python3"
 echo "Creating portable Python bundle in: $BUNDLE_ROOT"
 echo "Python version: $PYTHON_VERSION"
 
-# Check for required build tools
-if ! command -v gcc &> /dev/null; then
-    echo "Error: gcc not found. Please install build-essential:"
-    echo "  sudo apt-get install build-essential libssl-dev zlib1g-dev libffi-dev"
-    exit 1
-fi
+# Step 0: Install build dependencies
+echo "Installing build dependencies..."
+sudo apt-get update -qq
+sudo apt-get install -y -qq \
+    build-essential \
+    libssl-dev \
+    zlib1g-dev \
+    libffi-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    liblzma-dev \
+    wget
+
+echo "Build dependencies installed"
+echo ""
 
 # Step 1: Create folder
 mkdir -p "$BUNDLE_ROOT"
