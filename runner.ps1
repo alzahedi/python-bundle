@@ -48,5 +48,8 @@ Write-Host ""
 # Run main.py with the config file
 & $PythonExe $MainScript --config $Config
 
+# Deactivate
+Deactivate
+
 # Exit with the same exit code as the Python script
 exit $LASTEXITCODE

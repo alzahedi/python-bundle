@@ -88,10 +88,43 @@ Write-Host "Writing activation scripts..."
 set PATH=%~dp0pip_wrapper\bin\;%~dp0python3\Scripts\;%~dp0python3\;%PATH%
 "@ | Out-File -Encoding ASCII -FilePath "$BundleRoot\activate.cmd"
 
-# activate.ps1
+# activate.ps1 with deactivate support
 @'
 $ScriptDir = (Split-Path -Parent $MyInvocation.MyCommand.Definition)
+
+# Save original environment if not already saved
+if (-not $Global:_PythonBundleActive) {
+    $Global:_OriginalPath = $Env:PATH
+    $Global:_PythonBundleActive = $true
+    $Global:_PythonBundlePaths = @(
+        "$ScriptDir\pip_wrapper\bin",
+        "$ScriptDir\python3\Scripts",
+        "$ScriptDir\python3"
+    )
+}
+
+# Activate
 $Env:PATH = "$ScriptDir\pip_wrapper\bin;$ScriptDir\python3\Scripts;$ScriptDir\python3;$Env:PATH"
+
+# Create deactivate function
+function Global:Deactivate {
+    if ($Global:_PythonBundleActive) {
+        # Restore original PATH
+        $Env:PATH = $Global:_OriginalPath
+        
+        # Clean up
+        Remove-Variable -Name _OriginalPath -Scope Global -ErrorAction SilentlyContinue
+        Remove-Variable -Name _PythonBundleActive -Scope Global -ErrorAction SilentlyContinue
+        Remove-Variable -Name _PythonBundlePaths -Scope Global -ErrorAction SilentlyContinue
+        Remove-Item -Path Function:\Deactivate-PythonBundle -ErrorAction SilentlyContinue
+        
+        Write-Host "Python bundle deactivated"
+    } else {
+        Write-Host "Python bundle is not active"
+    }
+}
+
+Write-Host "Python bundle activated. Use 'Deactivate' to restore environment."
 '@ | Out-File -Encoding UTF8 -FilePath "$BundleRoot\activate.ps1"
 
 Write-Host "`nPortable Python bundle created successfully!"
